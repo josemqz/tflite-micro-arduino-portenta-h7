@@ -59,10 +59,12 @@ of sample projects you can try out.
 
 ## Compatibility
 
-This library is designed for the `Arduino Nano 33 BLE Sense` board. The framework
-code for running machine learning models should be compatible with most Arm Cortex
-M-based boards, such as the `Raspberry Pi Pico`, but the code to access peripherals
-like microphones, cameras, and accelerometers is specific to the `Nano 33 BLE Sense`.
+The framework code for running machine learning models should be compatible with most Arm Cortex
+M-based boards, such as the `Raspberry Pi Pico` or `Arduino Portenta H7` ~~, but the code to access
+peripherals like microphones, cameras, and accelerometers is specific to the `Nano 33 BLE Sense`~~.
+
+The person_detection example has been modified to work specifically with the `Arduino Portenta H7`
+and `Portenta Vision Shield`.
 
 ## License
 
@@ -75,6 +77,5 @@ fixes to contribute, the source of this code is at [https:://github.com/tensorfl
 and all issues and pull requests should be directed there.
 
 The code here is created through an automatic project generation process
-and may differ from
-that source of truth, since it's cross-platform and needs to be modified to
-work within the Arduino IDE.
+and may differ from that source of truth, since it's cross-platform and 
+needs to be modified to work within the Arduino IDE.
