@@ -36,6 +36,8 @@ limitations under the License.
 #include "tensorflow/lite/schema/schema_generated.h"
 #include "tensorflow/lite/schema/schema_utils.h"
 
+#include <Arduino.h>
+
 namespace tflite {
 
 namespace {
@@ -368,6 +370,7 @@ MicroAllocator* MicroAllocator::Create(uint8_t* tensor_arena, size_t arena_size,
   uint8_t* aligned_arena =
       AlignPointerUp(tensor_arena, MicroArenaBufferAlignment());
   size_t aligned_arena_size = tensor_arena + arena_size - aligned_arena;
+
   SingleArenaBufferAllocator* memory_allocator =
       SingleArenaBufferAllocator::Create(aligned_arena, aligned_arena_size);
 
@@ -376,19 +379,75 @@ MicroAllocator* MicroAllocator::Create(uint8_t* tensor_arena, size_t arena_size,
 
 MicroAllocator* MicroAllocator::Create(uint8_t* tensor_arena,
                                        size_t arena_size) {
+Serial.println("debug0[MicroAllocator Create]");
+
+Serial.print("tensor_arena: ");
+Serial.println(reinterpret_cast<std::uintptr_t>(tensor_arena));
+
+Serial.print("arena_size: ");
+Serial.println(arena_size);
+
+Serial.print("alignment tensor_arena: ");
+Serial.println(alignof(tensor_arena));
+
   uint8_t* aligned_arena =
       AlignPointerUp(tensor_arena, MicroArenaBufferAlignment());
+
+Serial.print("MicroArenaBufferAlignment: ");
+Serial.println(MicroArenaBufferAlignment());
+
+Serial.print("aligned_arena (buffer_head): ");
+Serial.println(reinterpret_cast<std::uintptr_t>(aligned_arena));
+
+Serial.println("debug0.5[MAC]");
+
   size_t aligned_arena_size = tensor_arena + arena_size - aligned_arena;
+
+Serial.print("aligned_arena_size (buffer_size): ");
+Serial.println(aligned_arena_size);
+  
   SingleArenaBufferAllocator* memory_allocator =
       SingleArenaBufferAllocator::Create(aligned_arena, aligned_arena_size);
+
+Serial.print("memory_allocator.buffer_tail: ");
+Serial.println(reinterpret_cast<std::uintptr_t>(memory_allocator->buffer_tail_));
+Serial.print("memory_allocator.tail_: ");
+Serial.println(reinterpret_cast<std::uintptr_t>(memory_allocator->tail_));
+Serial.print("memory_allocator.head_: ");
+Serial.println(reinterpret_cast<std::uintptr_t>(memory_allocator->head_));
+
+Serial.println("debug1 [MAC]");
+
+Serial.print("alignof(GreedyMemoryPlanner): ");
+Serial.println(alignof(GreedyMemoryPlanner));
+
+Serial.print("sizeof(GreedyMemoryPlanner): ");
+Serial.println(sizeof(GreedyMemoryPlanner));
+
+// alinear tamanio de greedymemoryplanner?
+// ah chucha, el problema es asignando un buffer en el memory allocator mm
+
+// en AllocatePersistentBuffer se hace un AlignPointerDown, en donde se hace un tail - size
+// el tail actualmente queda en 0, asi que no tiene espacio para asignar mas memoria
+
+// tengo que reiniciar el tail (moverlo al buffer_tail)
+//memory_allocator->tail_ = memory_allocator->buffer_tail_;
+
+Serial.print("new memory_allocator.buffer_tail: ");
+Serial.println(reinterpret_cast<std::uintptr_t>(memory_allocator->buffer_tail_));
+Serial.print("new memory_allocator.tail_: ");
+Serial.println(reinterpret_cast<std::uintptr_t>(memory_allocator->tail_));
 
   // By default create GreedyMemoryPlanner.
   // If a different MemoryPlanner is needed, use the other api.
   uint8_t* memory_planner_buffer = memory_allocator->AllocatePersistentBuffer(
       sizeof(GreedyMemoryPlanner), alignof(GreedyMemoryPlanner));
+
+Serial.println("debug2 [MAC]");
+
   GreedyMemoryPlanner* memory_planner =
       new (memory_planner_buffer) GreedyMemoryPlanner();
-
+Serial.println("debug3 [MAC]");
   return Create(memory_allocator, memory_planner);
 }
 

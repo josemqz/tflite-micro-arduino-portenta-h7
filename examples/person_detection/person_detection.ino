@@ -19,6 +19,7 @@ limitations under the License.
 #include "image_provider.h"
 #include "main_functions.h"
 #include "model_settings.h"
+#include "cc_model_data.h"
 #include "person_detect_model_data.h"
 #include "tensorflow/lite/micro/micro_interpreter.h"
 #include "tensorflow/lite/micro/micro_log.h"
@@ -26,24 +27,55 @@ limitations under the License.
 #include "tensorflow/lite/micro/system_setup.h"
 #include "tensorflow/lite/schema/schema_generated.h"
 
+#include "SDMMCBlockDevice.h"
+#include "FATFileSystem.h"
+
+#include "camera.h"
+#include "ImageCropper.h"
+
+#include <SDRAM.h>
+
 // Globals, used for compatibility with Arduino-style sketches.
 namespace {
-const tflite::Model* model = nullptr;
-tflite::MicroInterpreter* interpreter = nullptr;
-TfLiteTensor* input = nullptr;
+  const tflite::Model* model = nullptr;
+  tflite::MicroInterpreter* interpreter = nullptr;
+  TfLiteTensor* input = nullptr;
+  
+  // In order to use optimized tensorflow lite kernels, a signed int8_t quantized
+  // model is preferred over the legacy unsigned model format. This means that
+  // throughout this project, input images must be converted from unisgned to
+  // signed format. The easiest and quickest way to convert from unsigned to
+  // signed 8-bit integers is to subtract 128 from the unsigned value to get a
+  // signed value.
+  
+  // An area of memory to use for input, output, and intermediate arrays.
+  constexpr int kTensorArenaSize = 136 * 1024;
+  // Keep aligned to 16 bytes for CMSIS
+  //alignas(16) uint8_t tensor_arena[kTensorArenaSize];
+  alignas(8) uint8_t *tensor_arena = (uint8_t *)SDRAM.malloc(kTensorArenaSize);
 
-// In order to use optimized tensorflow lite kernels, a signed int8_t quantized
-// model is preferred over the legacy unsigned model format. This means that
-// throughout this project, input images must be converted from unisgned to
-// signed format. The easiest and quickest way to convert from unsigned to
-// signed 8-bit integers is to subtract 128 from the unsigned value to get a
-// signed value.
-
-// An area of memory to use for input, output, and intermediate arrays.
-constexpr int kTensorArenaSize = 136 * 1024;
-// Keep aligned to 16 bytes for CMSIS
-alignas(16) uint8_t tensor_arena[kTensorArenaSize];
+  // SD Card block device and filesystem
+  //SDMMCBlockDevice block_device;
+  //mbed::FATFileSystem fs("fs");
+  
+  constexpr int pd_large_image_width = 320;
+  constexpr int pd_large_image_height = 240;
+  //constexpr int pd_large_image_size = (pd_large_image_width * pd_large_image_height);
+  constexpr int pd_cropped_dimension = 240;
+  constexpr int pd_cropped_size = pd_cropped_dimension * pd_cropped_dimension;
+  
+  //uint8_t largeImage[pd_large_image_size];
+  FrameBuffer largeImage(pd_large_image_width, pd_large_image_height, 2);
+  uint8_t croppedImage[pd_cropped_size];
+  
+  boolean sd_card_initialized = false;
+  
+  char filename[255];
+  
+  ImageCropper image_cropper;
+    
 }  // namespace
+
 
 // The name of this function is important for Arduino compatibility.
 void setup() {

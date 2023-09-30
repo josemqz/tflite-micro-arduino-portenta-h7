@@ -32,6 +32,8 @@ limitations under the License.
 #include "tensorflow/lite/schema/schema_generated.h"
 #include "tensorflow/lite/schema/schema_utils.h"
 
+#include <Arduino.h>
+
 namespace tflite {
 
 MicroInterpreter::MicroInterpreter(const Model* model,
@@ -43,13 +45,13 @@ MicroInterpreter::MicroInterpreter(const Model* model,
     : model_(model),
       op_resolver_(op_resolver),
       allocator_(*MicroAllocator::Create(tensor_arena, tensor_arena_size)),
-
       graph_(&context_, model, &allocator_, resource_variables),
       tensors_allocated_(false),
       initialization_status_(kTfLiteError),
       input_tensors_(nullptr),
       output_tensors_(nullptr),
       micro_context_(&allocator_, model_, &graph_) {
+Serial.println("debug1[MicroInterpreter()]");
   Init(profiler);
 }
 
@@ -77,6 +79,7 @@ MicroInterpreter::~MicroInterpreter() {
 }
 
 void MicroInterpreter::Init(MicroProfilerInterface* profiler) {
+Serial.println("debug1[MicroInterpreter Init(profiler)]");
   context_.impl_ = static_cast<void*>(&micro_context_);
   context_.ReportError = MicroContextReportOpError;
   context_.GetTensor = MicroContextGetTensor;

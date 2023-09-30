@@ -26,6 +26,8 @@ limitations under the License.
 #include "tensorflow/lite/micro/memory_helpers.h"
 #include "tensorflow/lite/micro/micro_log.h"
 
+#include <Arduino.h>
+
 namespace tflite {
 
 SingleArenaBufferAllocator::SingleArenaBufferAllocator(uint8_t* buffer_head,
@@ -43,17 +45,48 @@ SingleArenaBufferAllocator::SingleArenaBufferAllocator(uint8_t* buffer,
 /* static */
 SingleArenaBufferAllocator* SingleArenaBufferAllocator::Create(
     uint8_t* buffer_head, size_t buffer_size) {
+Serial.println("debug1[SingleArenaBufferAllocator Create]");
   TFLITE_DCHECK(buffer_head != nullptr);
+Serial.println("debug2[SABAC]");
+
+Serial.print("alignof(SingleArenaBufferAllocator): ");
+Serial.println(alignof(SingleArenaBufferAllocator));
+
+  // esto no afecta, porque la cabeza de todas formas queda en 0
+  // Align the buffer_head to meet the SDRAM's alignment requirements.
+  //uint8_t* aligned_buffer_head = AlignPointerUp(buffer_head, alignof(SingleArenaBufferAllocator));
+
+//Serial.print("aligned_buffer_head: ");
+//Serial.println(reinterpret_cast<std::uintptr_t>(aligned_buffer_head));
+
   SingleArenaBufferAllocator tmp =
       SingleArenaBufferAllocator(buffer_head, buffer_size);
+
+Serial.println("debug3[SABAC]");
 
   // Allocate enough bytes from the buffer to create a
   // SingleArenaBufferAllocator. The new instance will use the current adjusted
   // tail buffer from the tmp allocator instance.
   uint8_t* allocator_buffer = tmp.AllocatePersistentBuffer(
       sizeof(SingleArenaBufferAllocator), alignof(SingleArenaBufferAllocator));
+
+Serial.print("sizeof tmp: ");
+Serial.println(sizeof(tmp));
+
+Serial.print("allocator_buffer: ");
+Serial.println(reinterpret_cast<std::uintptr_t>(allocator_buffer));
+
+Serial.print("tmp.buffer_tail: ");
+Serial.println(reinterpret_cast<std::uintptr_t>(tmp.buffer_tail_));
+Serial.print("tmp.tail_: ");
+Serial.println(reinterpret_cast<std::uintptr_t>(tmp.tail_));
+Serial.print("tmp.head_: ");
+Serial.println(reinterpret_cast<std::uintptr_t>(tmp.head_));
+
   // Use the default copy constructor to populate internal states.
-  return new (allocator_buffer) SingleArenaBufferAllocator(tmp);
+Serial.println("debug4[SABAC] (a que este es el ultimo print 77)");
+  SingleArenaBufferAllocator* test = new (allocator_buffer) SingleArenaBufferAllocator(tmp);
+  return test;
 }
 
 SingleArenaBufferAllocator::~SingleArenaBufferAllocator() {}
@@ -111,13 +144,18 @@ uint8_t* SingleArenaBufferAllocator::AllocatePersistentBuffer(
   if (aligned_result < head_) {
 #ifndef TF_LITE_STRIP_ERROR_STRINGS
     const size_t missing_memory = head_ - aligned_result;
-    MicroPrintf(
-        "Failed to allocate tail memory. Requested: %u, "
-        "available %u, missing: %u",
-        size, size - missing_memory, missing_memory);
+    Serial.println(
+        "Failed to allocate tail memory. Requested: ");
+    Serial.print(size);
+    Serial.print(", available: ");
+    Serial.print(size - missing_memory);
+    Serial.print(", missing:");
+    Serial.println(missing_memory);
 #endif
     return nullptr;
   }
+  Serial.print("Tail_ alineado: ");
+  Serial.println(reinterpret_cast<std::uintptr_t>(tail_));
   tail_ = aligned_result;
   return aligned_result;
 }
