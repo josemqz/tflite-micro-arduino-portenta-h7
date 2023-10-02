@@ -424,15 +424,6 @@ Serial.println(alignof(GreedyMemoryPlanner));
 Serial.print("sizeof(GreedyMemoryPlanner): ");
 Serial.println(sizeof(GreedyMemoryPlanner));
 
-// alinear tamanio de greedymemoryplanner?
-// ah chucha, el problema es asignando un buffer en el memory allocator mm
-
-// en AllocatePersistentBuffer se hace un AlignPointerDown, en donde se hace un tail - size
-// el tail actualmente queda en 0, asi que no tiene espacio para asignar mas memoria
-
-// tengo que reiniciar el tail (moverlo al buffer_tail)
-//memory_allocator->tail_ = memory_allocator->buffer_tail_;
-
 Serial.print("new memory_allocator.buffer_tail: ");
 Serial.println(reinterpret_cast<std::uintptr_t>(memory_allocator->buffer_tail_));
 Serial.print("new memory_allocator.tail_: ");

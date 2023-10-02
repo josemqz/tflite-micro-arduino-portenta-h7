@@ -33,6 +33,6 @@ limitations under the License.
 //
 // For real applications, you should
 // ensure there's a specialized implementation that accesses hardware APIs.
-TfLiteStatus GetImage(const TfLiteTensor* tensor);
+TfLiteStatus GetImage(int image_width, int image_height, FrameBuffer* image_data);
 
 #endif  // TENSORFLOW_LITE_MICRO_EXAMPLES_PERSON_DETECTION_IMAGE_PROVIDER_H_

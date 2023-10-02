@@ -21,15 +21,15 @@ limitations under the License.
 
 // All of these values are derived from the values used during model training,
 // if you change your model you'll need to update these constants.
-constexpr int kNumCols = 240;
-constexpr int kNumRows = 240;
+constexpr int kNumCols = 96;
+constexpr int kNumRows = 96;
 constexpr int kNumChannels = 1;
 
 constexpr int kMaxImageSize = kNumCols * kNumRows * kNumChannels;
 
-constexpr int kCategoryCount = 2;
-constexpr int kBackgroundIndex = 0;
+constexpr int kCategoryCount = 3;
 constexpr int kPersonIndex = 1;
+constexpr int kNotAPersonIndex = 2;
 extern const char* kCategoryLabels[kCategoryCount];
 
 #endif  // TENSORFLOW_LITE_MICRO_EXAMPLES_PERSON_DETECTION_MODEL_SETTINGS_H_

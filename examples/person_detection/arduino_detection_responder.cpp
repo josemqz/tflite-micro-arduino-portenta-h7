@@ -13,12 +13,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
+/* // Code to exclude any boards that are not Nano 33 BLE >:(
 #if defined(ARDUINO) && !defined(ARDUINO_ARDUINO_NANO33BLE)
 #define ARDUINO_EXCLUDE_CODE
 #endif  // defined(ARDUINO) && !defined(ARDUINO_ARDUINO_NANO33BLE)
 
 #ifndef ARDUINO_EXCLUDE_CODE
-
+*/
 #include <cmath>
 
 #include "Arduino.h"
@@ -72,4 +73,4 @@ void RespondToDetection(float person_score, float no_person_score) {
               static_cast<int>(no_person_score_frac * 100));
 }
 
-#endif  // ARDUINO_EXCLUDE_CODE
+//#endif  // ARDUINO_EXCLUDE_CODE
