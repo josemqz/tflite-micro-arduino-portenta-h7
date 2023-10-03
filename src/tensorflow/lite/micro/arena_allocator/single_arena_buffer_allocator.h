@@ -110,12 +110,6 @@ class SingleArenaBufferAllocator : public INonPersistentBufferAllocator,
   // account any temporary allocations.
   size_t GetUsedBytes() const;
 
-  uint8_t* buffer_head_;
-  uint8_t* buffer_tail_;
-  uint8_t* head_;
-  uint8_t* tail_;
-  uint8_t* temp_;
-
   TF_LITE_REMOVE_VIRTUAL_DELETE
 
  protected:
@@ -127,11 +121,11 @@ class SingleArenaBufferAllocator : public INonPersistentBufferAllocator,
 
  private:
   size_t GetBufferSize() const;
-  //uint8_t* buffer_head_;
-  //uint8_t* buffer_tail_;
-  //uint8_t* head_;
-  //uint8_t* tail_;
-  //uint8_t* temp_;
+  uint8_t* buffer_head_;
+  uint8_t* buffer_tail_;
+  uint8_t* head_;
+  uint8_t* tail_;
+  uint8_t* temp_;
 
   // The combination of the checksum of outstanding temporary buffer pointers
   // AND the count of outstanding temporary buffer provide a low cost mechanism

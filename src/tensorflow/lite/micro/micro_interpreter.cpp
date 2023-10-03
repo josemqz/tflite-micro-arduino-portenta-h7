@@ -51,7 +51,7 @@ MicroInterpreter::MicroInterpreter(const Model* model,
       input_tensors_(nullptr),
       output_tensors_(nullptr),
       micro_context_(&allocator_, model_, &graph_) {
-Serial.println("debug1[MicroInterpreter()]");
+//Serial.println("debug1[MicroInterpreter()]"); // DEBUG
   Init(profiler);
 }
 
@@ -79,7 +79,7 @@ MicroInterpreter::~MicroInterpreter() {
 }
 
 void MicroInterpreter::Init(MicroProfilerInterface* profiler) {
-Serial.println("debug1[MicroInterpreter Init(profiler)]");
+// Serial.println("debug1[MicroInterpreter Init(profiler)]"); // DEBUG
   context_.impl_ = static_cast<void*>(&micro_context_);
   context_.ReportError = MicroContextReportOpError;
   context_.GetTensor = MicroContextGetTensor;

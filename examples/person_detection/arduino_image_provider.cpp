@@ -48,7 +48,6 @@ TfLiteStatus InitCamera(int image_width, int image_height) {
     // Initialize the camera for QVGA, 30FPS
     bool begin_status = cam.begin(CAMERA_R320x240, CAMERA_GRAYSCALE, 30);
     if (!begin_status) {
-        //TF_LITE_REPORT_ERROR(error_reporter, "arduino_image_provider InitCamera: camera.begin() failed with status %d", begin_status);
         Serial.println("arduino_image_provider InitCamera: camera.begin() failed with status " + (String)begin_status);
         return kTfLiteError;
     }

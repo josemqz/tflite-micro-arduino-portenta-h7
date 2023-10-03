@@ -45,13 +45,15 @@ SingleArenaBufferAllocator::SingleArenaBufferAllocator(uint8_t* buffer,
 /* static */
 SingleArenaBufferAllocator* SingleArenaBufferAllocator::Create(
     uint8_t* buffer_head, size_t buffer_size) {
+
+/*DEBUGGING MESSAGES
 Serial.println("debug1[SingleArenaBufferAllocator Create]");
   TFLITE_DCHECK(buffer_head != nullptr);
 Serial.println("debug2[SABAC]");
 
 Serial.print("alignof(SingleArenaBufferAllocator): ");
 Serial.println(alignof(SingleArenaBufferAllocator));
-
+*/
   // esto no afecta, porque la cabeza de todas formas queda en 0
   // Align the buffer_head to meet the SDRAM's alignment requirements.
   //uint8_t* aligned_buffer_head = AlignPointerUp(buffer_head, alignof(SingleArenaBufferAllocator));
@@ -62,14 +64,14 @@ Serial.println(alignof(SingleArenaBufferAllocator));
   SingleArenaBufferAllocator tmp =
       SingleArenaBufferAllocator(buffer_head, buffer_size);
 
-Serial.println("debug3[SABAC]");
+//Serial.println("debug3[SABAC]");
 
   // Allocate enough bytes from the buffer to create a
   // SingleArenaBufferAllocator. The new instance will use the current adjusted
   // tail buffer from the tmp allocator instance.
   uint8_t* allocator_buffer = tmp.AllocatePersistentBuffer(
       sizeof(SingleArenaBufferAllocator), alignof(SingleArenaBufferAllocator));
-
+/* DEBUG
 Serial.print("sizeof tmp: ");
 Serial.println(sizeof(tmp));
 
@@ -82,9 +84,9 @@ Serial.print("tmp.tail_: ");
 Serial.println(reinterpret_cast<std::uintptr_t>(tmp.tail_));
 Serial.print("tmp.head_: ");
 Serial.println(reinterpret_cast<std::uintptr_t>(tmp.head_));
-
-  // Use the default copy constructor to populate internal states.
 Serial.println("debug4[SABAC] (a que este es el ultimo print 77)");
+*/
+  // Use the default copy constructor to populate internal states.
   SingleArenaBufferAllocator* test = new (allocator_buffer) SingleArenaBufferAllocator(tmp);
   return test;
 }
@@ -154,8 +156,10 @@ uint8_t* SingleArenaBufferAllocator::AllocatePersistentBuffer(
 #endif
     return nullptr;
   }
+  /* DEBUG
   Serial.print("Tail_ alineado: ");
   Serial.println(reinterpret_cast<std::uintptr_t>(tail_));
+  */
   tail_ = aligned_result;
   return aligned_result;
 }

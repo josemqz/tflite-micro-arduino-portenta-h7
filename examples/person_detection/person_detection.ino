@@ -12,7 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================
-Also based on ARM-software/developer repository, which provides methods to crop and scale the images from the Vision Shield.
+Also based on ARM-software/developer repository, which provides 
+methods to crop and scale the images from the Vision Shield.
 https://github.com/ARM-software/developer/blob/master/projects/portenta_person_detection/person_detection/person_detection.ino
 ==============================================================================
 */
@@ -219,7 +220,7 @@ void setup() {
   micro_op_resolver.AddDepthwiseConv2D();
   micro_op_resolver.AddReshape();
   micro_op_resolver.AddSoftmax();
-Serial.println("debug1;");
+
   // Build an interpreter to run the model with.
   // NOLINTNEXTLINE(runtime-global-variables)
   static tflite::MicroInterpreter static_interpreter(model, 
@@ -227,18 +228,16 @@ Serial.println("debug1;");
                                                     tensor_arena,
                                                     kTensorArenaSize);
   interpreter = &static_interpreter;
-Serial.println("debug2;");
+
   // Allocate memory from the tensor_arena for the model's tensors.
   TfLiteStatus allocate_status = interpreter->AllocateTensors();
   if (allocate_status != kTfLiteOk) {
     Serial.println("AllocateTensors() failed");
     return;
   }
-  Serial.println("debug3;");
 
   // Get information about the memory area to use for the model's input.
   input = interpreter->input(0);
-  Serial.println("debug4;");
 
   if ((input->dims->size != 4) || (input->dims->data[0] != 1) ||
       (input->dims->data[1] != kNumRows) ||
@@ -264,9 +263,6 @@ void loop() {
       Serial.print(pd_large_image_height);
       Serial.println(") from camera");
   }
-
-  // use TfLiteTensor* tensor (input) in image FrameBuffer class, so it's compatible with cam.grabFrame method
-  largeImage.setBuffer(input->data.uint8);
 
   if (kTfLiteOk != GetImage(pd_large_image_width, pd_large_image_height, &largeImage)) {
     Serial.println("Image capture failed.");
